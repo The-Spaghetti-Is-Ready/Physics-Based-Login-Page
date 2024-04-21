@@ -1,3 +1,7 @@
+//This file initializes the physics world for the page
+
+const matterContainer = document.querySelector("#matter-container"); //grab the container div
+
 // module aliases
 var Engine = Matter.Engine,
     Render = Matter.Render,
@@ -11,7 +15,14 @@ var engine = Engine.create();
 // create a renderer
 var render = Render.create({
     element: document.body,
-    engine: engine
+    engine: engine,
+    options: {
+        width: matterContainer.clientWidth,
+        height: matterContainer.clientHeight,
+        background: "transparent",
+        wireframes: true,
+        showAngleIndicator: true
+    }
 });
 
 // create two boxes and a ground
