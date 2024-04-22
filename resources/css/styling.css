@@ -16,11 +16,6 @@ script {
     display: none;
 } */
 
-canvas {
-    overflow-clip-margin: content-box;
-    overflow: clip;
-}
-
 body {
     margin: 0;
     min-height: 100%;
@@ -33,7 +28,7 @@ body {
 
 #matter-container {
     overflow: hidden;
-    height: 80%;
+    height: 90%;
     width: 100%;
     position: absolute;
     top: 0; right: 0; bottom: 0; left: 0;
