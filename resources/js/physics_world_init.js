@@ -1,4 +1,3 @@
-
 const matterContainer = document.querySelector("#matter-container");
 const THICCNESS = 60;
 
@@ -14,29 +13,42 @@ var engine = Engine.create();
 
 // create a renderer
 var render = Render.create({
-  element: matterContainer,
-  engine: engine,
-  options: {
-    width: matterContainer.clientWidth,
-    height: matterContainer.clientHeight,
-    background: "transparent",
-    wireframes: true,
-    showAngleIndicator: false
-  }
+    element: matterContainer,
+    engine: engine,
+    options: {
+        width: matterContainer.clientWidth,
+        height: matterContainer.clientHeight,
+        background: "transparent",
+        wireframes: true,
+        showAngleIndicator: false
+    }
 });
 
-// create two boxes and a ground
-// var boxA = Bodies.rectangle(400, 200, 80, 80);
-// var boxB = Bodies.rectangle(450, 50, 80, 80);
-
-for (let i = 0; i < 100; i++) {
-  let circle = Bodies.circle(i, 10, 30, {
-    friction: 0.3,
-    frictionAir: 0.00001,
-    restitution: 0.8
-  });
-  Composite.add(engine.world, circle);
+//create plino machine ball colliders
+for (let i = 0; i < 10; ++i) {
+    for(let j = 0; j < 10; ++j) {
+        let circle = Bodies.circle(i+25, 50, 15, {
+            isStatic: true,
+            friction: 0
+        });
+        Composite.add(engine.world, circle);
+    }
 }
+
+/**
+ * Spawns particle when spacebar is pressed.
+ */
+document.addEventListener('keydown', (e) => {
+    if (e.code === "Space") {
+        //create circle
+        let circle = Bodies.circle(matterContainer.clientWidth/2, 80, 10, {
+            friction: 0.3,
+            frictionAir: 0.00001,
+            restitution: 0.8
+        });
+        Composite.add(engine.world, circle); //add to physics world
+    }
+});
 
 var ground = Bodies.rectangle(
   matterContainer.clientWidth / 2,
@@ -122,5 +134,6 @@ function handleResize(matterContainer) {
     )
   );
 }
+
 
 window.addEventListener("resize", () => handleResize(matterContainer));
