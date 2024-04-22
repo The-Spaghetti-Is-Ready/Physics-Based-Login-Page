@@ -20,7 +20,7 @@ var render = Render.create({
     width: matterContainer.clientWidth,
     height: matterContainer.clientHeight,
     background: "transparent",
-    wireframes: false,
+    wireframes: true,
     showAngleIndicator: false
   }
 });
