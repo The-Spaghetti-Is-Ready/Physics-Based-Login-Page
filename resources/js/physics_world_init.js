@@ -1,6 +1,7 @@
 //This file initializes the physics world for the page
 
 const matterContainer = document.querySelector("#matter-container"); //grab the container div
+var THICCNESS = 60;
 
 // module aliases
 var Engine = Matter.Engine,
@@ -28,10 +29,39 @@ var render = Render.create({
 // create two boxes and a ground
 var boxA = Bodies.rectangle(400, 200, 80, 80);
 var boxB = Bodies.rectangle(450, 50, 80, 80);
-var ground = Bodies.rectangle(400, 610, 810, 60, { isStatic: true });
 
 // add all of the bodies to the world
-Composite.add(engine.world, [boxA, boxB, ground]);
+Composite.add(engine.world, [boxA, boxB]);
+
+var ground = Bodies.rectangle(
+matterContainer.clientWidth / 2,
+matterContainer.clientHeight + THICCNESS / 2,
+27184,
+THICCNESS,
+{ isStatic: true }
+);
+
+let leftWall = Bodies.rectangle(
+0 - THICCNESS / 2,
+matterContainer.clientHeight / 2,
+THICCNESS,
+matterContainer.clientHeight * 5,
+{
+    isStatic: true
+}
+);
+
+let rightWall = Bodies.rectangle(
+matterContainer.clientWidth + THICCNESS / 2,
+matterContainer.clientHeight / 2,
+THICCNESS,
+matterContainer.clientHeight * 5,
+{ isStatic: true }
+);
+
+// add all of the bodies to the world
+Composite.add(engine.world, [ground, leftWall, rightWall]);
+
 
 // run the renderer
 Render.run(render);
