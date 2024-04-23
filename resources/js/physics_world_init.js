@@ -19,20 +19,29 @@ var render = Render.create({
         width: matterContainer.clientWidth,
         height: matterContainer.clientHeight,
         background: "transparent",
-        wireframes: true,
+        wireframes: false,
         showAngleIndicator: false
     }
 });
 
-//create plino machine ball colliders
+//create plinko machine ball collider grid
 for (let i = 0; i < 10; ++i) {
-    for(let j = 0; j < 10; ++j) {
-        let circle = Bodies.circle(i+25, 50, 15, {
+  let Offset = 20;
+  for(let j = 0; j < 50; ++j) {
+    if(j % 2 == 0) { //if row is even then apply an offset
+      let circle = Bodies.circle(20 + (j * 50) + Offset, 250 + i * 50, 15, {
+          isStatic: true,
+          friction: 0
+      });
+      Composite.add(engine.world, circle);
+    } else {
+        let circle = Bodies.circle(450 + j * 50, 250 + i * 50, 15, {
             isStatic: true,
             friction: 0
         });
         Composite.add(engine.world, circle);
     }
+  }
 }
 
 /**
@@ -134,6 +143,5 @@ function handleResize(matterContainer) {
     )
   );
 }
-
 
 window.addEventListener("resize", () => handleResize(matterContainer));
