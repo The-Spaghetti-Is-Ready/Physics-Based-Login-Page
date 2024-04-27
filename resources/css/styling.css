@@ -19,7 +19,7 @@ script {
 body {
     margin: 0;
     min-height: 100%;
-    background-color: #fff;
+    background-color: #ffffff;
     font-family: Arial, sans-serif;
     font-size: 14px;
     line-height: 20px;
@@ -34,6 +34,15 @@ body {
     top: 0; right: 0; bottom: 0; left: 0;
 }
 
-div {
-    height: 50vh;
+#text-output {
+    top: 0%;
+    font-family: Arial, sans-serif;
+    padding-left: 10px;
+}
+
+#footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    padding-left: 10px;
 }
