@@ -8,7 +8,7 @@
 const matterContainer = document.querySelector("#matter-container"); //Contain the matter world scope/viewport within the matter-container Div.
 const THICCNESS = 60;
 
-let volume = 0;
+let volume = 50; //initial volume value set to 50
 
 // module aliases
 var Engine = Matter.Engine,
@@ -36,7 +36,7 @@ var render = Render.create({
 /**
  * create plinko machine peg collider grid and buckets
  */
-for (let i = 0; i < 15; ++i) {
+for (let i = 0; i < 10; ++i) {
   let Offset = 25;
   for(let j = 0; j < 52; ++j) {
     if(i % 2 == 0) { //if row is even then apply an offset. This displays a plinko-like layout
@@ -62,6 +62,17 @@ for(let i = 0; i < 21; ++i) {
     friction: 0
   });
   Composite.add(engine.world, currentBucket);
+}
+
+//Create the 'detectors' for volume percentage logic
+var volumePercentageZones = []; //create an array structure for the rectangle detectors
+var currentVolumeChange = -100;
+for(let i = 0; i < 21; ++i) {
+  let volumeUpdateRectangle = { xPos: i * (matterContainer.clientWidth / 21), yPos: matterContainer.clientHeight, width: 10, height: 10, isStatic: true, volumeChange: currentVolumeChange }; //container with all the parameters needed for each volume updated and its associated volume percentage increase/decrease
+  volumePercentageZones.push(volumeUpdateRectangle); //store the rectangle detector parameters into the structure
+  if(i > 0) { //This accounts for the additional indices so % doesn't exceed 100
+    currentVolumeChange += 10;
+  }
 }
 
 /**
@@ -92,13 +103,17 @@ Composite.add(engine.world, playerCounter); //Add player to the world
 
 document.addEventListener('keydown', (e) => {  //Spawns particle when spacebar is pressed.
     if (e.key === "Enter") { //Spawn a ball when 'b' is pressed into the world
-        //create circle
-        let circle = Bodies.circle(currentPlayerPosition, 80, 10, {
-            friction: 0.3,
-            frictionAir: 0.00001,
-            restitution: 0.8
-        });
-        Composite.add(engine.world, circle); //add ball to physics world
+      //create circle
+      let circle = Bodies.circle(currentPlayerPosition, 80, 10, {
+          friction: 0.3,
+          frictionAir: 0.01,
+          restitution: 0.9
+      });
+      Composite.add(engine.world, circle); //add ball to physics world
+
+      circle.onCollide((pair) => { //Check for collision with the volume change zones within the buckets
+        
+      }); //This is really gross, but can't do much to decouple right now since refactoring would take so long and the deadline is approaching.
     }
     if(e.key === "Escape") {
       Composite.clear(engine.world, true); //clear all of the spawned balls
@@ -198,13 +213,16 @@ function handleResize(matterContainer) {
   );
 }
 
+/**
+ * Volume modifier numbers for interface
+ */
 let volumeModifiers = document.querySelector("#volume-modifiers")
 let volumeModifierPadding = 10 + "px";
-let volumeModifierSpacing = (((matterContainer.clientWidth / 21) / 2) + 5) + "px";
+let volumeModifierSpacing = ((matterContainer.clientWidth / 21) / 2) + "px";
 console.log(matterContainer.clientWidth);
 volumeModifiers.style.setProperty('padding-left', volumeModifierPadding);
 volumeModifiers.style.setProperty('word-spacing', volumeModifierSpacing);
 
-document.getElementById('output').innerHTML = volume;
+document.getElementById('output').innerHTML = volume; //current volume output to screen
 
 window.addEventListener("resize", () => handleResize(matterContainer));
