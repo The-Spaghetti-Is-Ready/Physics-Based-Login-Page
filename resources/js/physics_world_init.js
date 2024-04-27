@@ -1,5 +1,14 @@
+/**
+ * Author: Marco Garzon Lara
+ * Student Number: 33970651
+ * Brief: Unintuitive, physics-based volume mixer UI
+ * Notes: This JavaScript file is so gross and coupled I apologise in advance to whoever has to read this, I wrote this on the fly lol.
+ */
+
 const matterContainer = document.querySelector("#matter-container");
 const THICCNESS = 60;
+
+let volume = 0;
 
 // module aliases
 var Engine = Matter.Engine,
@@ -8,7 +17,7 @@ var Engine = Matter.Engine,
   Bodies = Matter.Bodies,
   Composite = Matter.Composite;
 
-// create an engine
+// create a physics engine
 var engine = Engine.create();
 
 // create a renderer
@@ -25,17 +34,17 @@ var render = Render.create({
 });
 
 //create plinko machine ball collider grid
-for (let i = 0; i < 10; ++i) {
-  let Offset = 20;
+for (let i = 0; i < 12; ++i) {
+  let Offset = 10;
   for(let j = 0; j < 50; ++j) {
-    if(j % 2 == 0) { //if row is even then apply an offset
-      let circle = Bodies.circle(20 + (j * 50) + Offset, 250 + i * 50, 15, {
+    if(i % 2 == 0) { //if row is even then apply an offset. This displays a plinko-like layout
+      let circle = Bodies.circle(20 + (j * 50) + Offset, 250 + i * 50, 10, { //create a circle with the x-pos
           isStatic: true,
           friction: 0
       });
-      Composite.add(engine.world, circle);
+      Composite.add(engine.world, circle); //add the collider onto the scene
     } else {
-        let circle = Bodies.circle(450 + j * 50, 250 + i * 50, 15, {
+        let circle = Bodies.circle(450 + (j * 50), 250 + i * 50, 10, {
             isStatic: true,
             friction: 0
         });
@@ -44,13 +53,31 @@ for (let i = 0; i < 10; ++i) {
   }
 }
 
+//Player particle spawner position
+var currentPlayerPosition = matterContainer.clientWidth / 2;
+let playerCounter = Bodies.rectangle(currentPlayerPosition, 70, 10, 10, {
+  isStatic: true
+});
+document.addEventListener('keydown', (e) => {
+  switch(e.key) {
+    case "ArrowLeft": //left
+    currentPlayerPosition += -20;
+    break;
+    case "ArrowRight": //right
+    currentPlayerPosition += 20;
+    break;
+  }
+  Matter.Body.set(playerCounter, "position", { x: currentPlayerPosition, y: 70 });
+});
+Composite.add(engine.world, playerCounter);
+
 /**
  * Spawns particle when spacebar is pressed.
  */
 document.addEventListener('keydown', (e) => {
     if (e.code === "Space") {
         //create circle
-        let circle = Bodies.circle(matterContainer.clientWidth/2, 80, 10, {
+        let circle = Bodies.circle(currentPlayerPosition, 80, 10, {
             friction: 0.3,
             frictionAir: 0.00001,
             restitution: 0.8
@@ -143,5 +170,7 @@ function handleResize(matterContainer) {
     )
   );
 }
+
+document.getElementById('output').innerHTML = volume;
 
 window.addEventListener("resize", () => handleResize(matterContainer));
