@@ -68,7 +68,7 @@ for(let i = 0; i < 21; ++i) {
  * Player particle spawner position and spawning logic
  */
 var currentPlayerPosition = matterContainer.clientWidth / 2; //Set the inital player position to middle of viewport
-let playerCounter = Bodies.rectangle(currentPlayerPosition, 70, 10, 10, { //Make the player a rectangle
+let playerCounter = Bodies.rectangle(currentPlayerPosition, 70, 12, 12, { //Make the player a rectangle
   isStatic: true
 });
 document.addEventListener('keydown', (e) => { //player movement controls
@@ -198,6 +198,13 @@ function handleResize(matterContainer) {
   );
 }
 
-window.addEventListener("resize", () => handleResize(matterContainer));
+let volumeModifiers = document.querySelector("#volume-modifiers")
+let volumeModifierPadding = 10 + "px";
+let volumeModifierSpacing = (((matterContainer.clientWidth / 21) / 2) + 5) + "px";
+console.log(matterContainer.clientWidth);
+volumeModifiers.style.setProperty('padding-left', volumeModifierPadding);
+volumeModifiers.style.setProperty('word-spacing', volumeModifierSpacing);
 
 document.getElementById('output').innerHTML = volume;
+
+window.addEventListener("resize", () => handleResize(matterContainer));
