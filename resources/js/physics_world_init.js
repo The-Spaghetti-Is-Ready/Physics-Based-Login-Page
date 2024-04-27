@@ -68,11 +68,16 @@ for(let i = 0; i < 21; ++i) {
 var volumePercentageZones = []; //create an array structure for the rectangle detectors
 var currentVolumeChange = -100;
 for(let i = 0; i < 21; ++i) {
-  let volumeUpdateRectangle = { xPos: i * (matterContainer.clientWidth / 21), yPos: matterContainer.clientHeight, width: 10, height: 10, isStatic: true, volumeChange: currentVolumeChange }; //container with all the parameters needed for each volume updated and its associated volume percentage increase/decrease
+  let volumeUpdateRectangle = { xPos: i * (matterContainer.clientWidth / 21) + 50, yPos: matterContainer.clientHeight, width: 100, height: 10, isStatic: true, volumeChange: currentVolumeChange }; //container with all the parameters needed for each volume updated and its associated volume percentage increase/decrease
   volumePercentageZones.push(volumeUpdateRectangle); //store the rectangle detector parameters into the structure
   if(i > 0) { //This accounts for the additional indices so % doesn't exceed 100
     currentVolumeChange += 10;
   }
+}
+
+for(let i = 0; i < volumePercentageZones.length; ++i) {
+  let currentZone = Bodies.rectangle(volumePercentageZones[i].xPos, volumePercentageZones[i].yPos, volumePercentageZones[i].width, volumePercentageZones[i].height, { isStatic: volumePercentageZones[i].isStatic });
+  Composite.add(engine.world, currentZone);
 }
 
 /**
