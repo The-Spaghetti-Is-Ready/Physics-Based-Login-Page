@@ -33,18 +33,20 @@ var render = Render.create({
     }
 });
 
-//create plinko machine ball collider grid
-for (let i = 0; i < 12; ++i) {
+/**
+ * create plinko machine peg collider grid and buckets
+ */
+for (let i = 0; i < 15; ++i) {
   let Offset = 25;
   for(let j = 0; j < 52; ++j) {
     if(i % 2 == 0) { //if row is even then apply an offset. This displays a plinko-like layout
-      let circle = Bodies.circle(0 + (j * 50) + Offset, 250 + i * 50, 8, { //create a circle with the x-pos offset
+      let circle = Bodies.circle((j * 50) + Offset, 250 + i * 50, 8, { //create a circle with the x-pos offset
           isStatic: true,
           friction: 0
       });
       Composite.add(engine.world, circle); //add the collider onto the scene
     } else {
-        let circle = Bodies.circle(0 + (j * 50), 250 + i * 50, 8, { //create ball without the offset
+        let circle = Bodies.circle(j * 50, 250 + i * 50, 8, { //create ball without the offset
             isStatic: true,
             friction: 0
         });
@@ -53,17 +55,28 @@ for (let i = 0; i < 12; ++i) {
   }
 }
 
-//Player particle spawner position
+//Create the plinko buckets
+for(let i = 0; i < 21; ++i) {
+  let currentBucket = Bodies.rectangle(i * (matterContainer.clientWidth / 21), matterContainer.clientHeight - 50, 10, 100, { //Make the bucket
+    isStatic: true,
+    friction: 0
+  });
+  Composite.add(engine.world, currentBucket);
+}
+
+/**
+ * Player particle spawner position and spawning logic
+ */
 var currentPlayerPosition = matterContainer.clientWidth / 2; //Set the inital player position to middle of viewport
 let playerCounter = Bodies.rectangle(currentPlayerPosition, 70, 10, 10, { //Make the player a rectangle
   isStatic: true
 });
 document.addEventListener('keydown', (e) => { //player movement controls
   switch(e.key) {
-    case "ArrowLeft": //left
+    case "a": //left
     currentPlayerPosition += -20;
     break;
-    case "ArrowRight": //right
+    case "d": //right
     currentPlayerPosition += 20;
     break;
   }
@@ -71,11 +84,8 @@ document.addEventListener('keydown', (e) => { //player movement controls
 });
 Composite.add(engine.world, playerCounter); //Add player to the world
 
-/**
- * Spawns particle when spacebar is pressed.
- */
-document.addEventListener('keydown', (e) => {
-    if (e.key === "B" || e.key === "b") { //Spawn a ball when 'b' is pressed into the world
+document.addEventListener('keydown', (e) => {  //Spawns particle when spacebar is pressed.
+    if (e.key === "Enter") { //Spawn a ball when 'b' is pressed into the world
         //create circle
         let circle = Bodies.circle(currentPlayerPosition, 80, 10, {
             friction: 0.3,
@@ -89,6 +99,10 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
+
+/**
+ * Spawn world boundaries
+ */
 var ground = Bodies.rectangle( //ground collision
   matterContainer.clientWidth / 2,
   matterContainer.clientHeight + THICCNESS / 2,
@@ -115,10 +129,11 @@ let rightWall = Bodies.rectangle( //Left collision wall (right browser window bo
   { isStatic: true }
 );
 
-// add all of the bodies to the world
-Composite.add(engine.world, [ground, leftWall, rightWall]);
+Composite.add(engine.world, [ground, leftWall, rightWall]); // add all of the bodies to the world
 
-//Mouse movement object-grabbing constraint
+/**
+ * Mouse movement constraints
+ */
 let mouse = Matter.Mouse.create(render.canvas);
 let mouseConstraint = Matter.MouseConstraint.create(engine, {
   mouse: mouse,
@@ -132,8 +147,7 @@ let mouseConstraint = Matter.MouseConstraint.create(engine, {
 
 Composite.add(engine.world, mouseConstraint); //add this constraint to the world
 
-// allow scroll through the canvas by removing scroll wheel from Composite
-mouseConstraint.mouse.element.removeEventListener(
+mouseConstraint.mouse.element.removeEventListener( // allow scroll through the canvas by removing scroll wheel from Composite
   "mousewheel",
   mouseConstraint.mouse.mousewheel
 );
@@ -142,15 +156,18 @@ mouseConstraint.mouse.element.removeEventListener(
   mouseConstraint.mouse.mousewheel
 );
 
-// run the renderer
-Render.run(render);
+/**
+ * Runtime calls
+ */
+Render.run(render); // run the renderer
 
-// create runner
-var runner = Runner.create();
+var runner = Runner.create(); // create runner
 
-// run the engine
-Runner.run(runner, engine);
+Runner.run(runner, engine); // run the engine
 
+/**
+ *  Browser window resizing handlers
+ */
 function handleResize(matterContainer) {
   // set canvas size to new values
   render.canvas.width = matterContainer.clientWidth;
@@ -175,6 +192,6 @@ function handleResize(matterContainer) {
   );
 }
 
-document.getElementById('output').innerHTML = volume;
-
 window.addEventListener("resize", () => handleResize(matterContainer));
+
+document.getElementById('output').innerHTML = volume;
