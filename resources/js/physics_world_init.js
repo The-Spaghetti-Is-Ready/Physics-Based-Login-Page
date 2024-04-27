@@ -75,7 +75,7 @@ Composite.add(engine.world, playerCounter);
  * Spawns particle when spacebar is pressed.
  */
 document.addEventListener('keydown', (e) => {
-    if (e.code === "Space") {
+    if (e.key === "B" || e.key === "b") {
         //create circle
         let circle = Bodies.circle(currentPlayerPosition, 80, 10, {
             friction: 0.3,
@@ -83,6 +83,9 @@ document.addEventListener('keydown', (e) => {
             restitution: 0.8
         });
         Composite.add(engine.world, circle); //add to physics world
+    }
+    if(e.key === "Escape") {
+      Composite.clear(engine.world, true);
     }
 });
 
