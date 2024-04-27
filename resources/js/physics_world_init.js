@@ -74,11 +74,17 @@ let playerCounter = Bodies.rectangle(currentPlayerPosition, 70, 10, 10, { //Make
 document.addEventListener('keydown', (e) => { //player movement controls
   switch(e.key) {
     case "a": //left
-    currentPlayerPosition += -20;
-    break;
+      currentPlayerPosition += -20;
+      break;
+    case "ArrowLeft":
+      currentPlayerPosition += -20;
+      break;
     case "d": //right
-    currentPlayerPosition += 20;
-    break;
+      currentPlayerPosition += 20;
+      break;
+    case "ArrowRight":
+      currentPlayerPosition += 20;
+      break;
   }
   Matter.Body.set(playerCounter, "position", { x: currentPlayerPosition, y: 70 }); //update player position
 });
