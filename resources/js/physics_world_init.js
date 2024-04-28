@@ -2,7 +2,7 @@
  * Author: Marco Garzon Lara
  * Student Number: 33970651
  * Brief: Unintuitive, physics-based volume mixer UI
- * Notes: This JavaScript file is so gross and coupled I apologise in advance to whoever has to read this, I wrote this on the fly lol.
+ * Notes: This JavaScript file is so gross and coupled I apologise in advance to whoever has to read this, I wrote this on the fly lol. I guess it's fitting since it's a "worst UI" competition :|
  */
 
 const matterContainer = document.querySelector("#matter-container"); //Contain the matter world scope/viewport within the matter-container Div.
@@ -102,12 +102,12 @@ for(let i = 0; i < 21; ++i) {
     currentVolumeChange = -1 * currentVolumeChange;
     currentVolumeChange -= 10;
   } else {
-    currentVolumeChange -= 10; //update current volume so each zone has the right change amount
+    currentVolumeChange -= 10; //update current volume so each zone has the right modifier amount
     currentVolumeChange = -1 * currentVolumeChange;
   }
 }
 
-//add zones to composite
+//add stored zones to composite
 for(let i = 0; i < volumePercentageZones.length; ++i) {
   let currentZone = Bodies.rectangle(volumePercentageZones[i].xPos, volumePercentageZones[i].yPos, volumePercentageZones[i].width, volumePercentageZones[i].height, { 
     isStatic: volumePercentageZones[i].isStatic, 
@@ -170,13 +170,13 @@ function zoneCollision(event) {
     var BodyA = pairs[i].bodyA;
     var BodyB = pairs[i].bodyB;
     
-    if(BodyA.label == 'particle' && BodyB.label == 'zone') {
-      volume += BodyB.zone;
-      if(volumeLock == true) {
-        volume = volumeBounds(volume);
+    if(BodyA.label == 'particle' && BodyB.label == 'zone') { //if a ball particle instance collides with a bucket collider object (bottom of the bucket)
+      volume += BodyB.zone; //add the corresponding zone value to the volume
+      if(volumeLock == true) { //if the volume is capped
+        volume = volumeBounds(volume); //apply the bounds. This basically ensures volume is { 0 < volume > 100 }.
       }
-      Composite.remove(engine.world, BodyA);
-    } else if(BodyB.label == 'particle' && BodyA.label == 'zone') {
+      Composite.remove(engine.world, BodyA); //Remove the colliding ball. This will ensure consistent app framerate as there will be less balls to keep track of
+    } else if(BodyB.label == 'particle' && BodyA.label == 'zone') { //same thing, but in the case that the retrieved pair bodies are switched around.
       volume += BodyA.zone;
       if(volumeLock == true) {
         volume = volumeBounds(volume);
