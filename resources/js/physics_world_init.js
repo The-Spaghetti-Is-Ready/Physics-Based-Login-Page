@@ -2,18 +2,42 @@
  * Author: Marco Garzon Lara
  * Student Number: 33970651
  * Brief: Unintuitive, physics-based volume mixer UI
- * Notes: This JavaScript file is so gross and coupled I apologise in advance to whoever has to read this, I wrote this on the fly lol.
+ * Notes: This JavaScript file is so gross and coupled I apologise in advance to whoever has to read this, I wrote this on the fly lol. I guess it's fitting since it's a "worst UI" competition :|
  */
 
 const matterContainer = document.querySelector("#matter-container"); //Contain the matter world scope/viewport within the matter-container Div.
 const THICCNESS = 60;
 
-let volume = 0;
+var volume = 50; //initial volume value set to 50
+var volumeLock = true;
+
+function lockVolume() {
+  var checkBox = document.getElementById("volume-lock");
+  if (checkBox.checked == true){
+    volume = volumeBounds(volume);
+    document.getElementById('output').innerHTML = volume; //update current volume output to screen
+
+    volumeLock = true;
+  } else {
+    volumeLock = false;
+  }
+  console.log(volumeLock);
+}
+
+function volumeBounds(currentVolume) {   
+  if(currentVolume > 100) {
+    return 100;
+  } else if(currentVolume < 0) {
+    return 0;
+  }
+  return currentVolume;
+}
 
 // module aliases
 var Engine = Matter.Engine,
   Render = Matter.Render,
   Runner = Matter.Runner,
+  Events = Matter.Events,
   Bodies = Matter.Bodies,
   Composite = Matter.Composite;
 
@@ -27,7 +51,7 @@ var render = Render.create({
     options: {
         width: matterContainer.clientWidth,
         height: matterContainer.clientHeight,
-        background: "transparent",
+        background: 'transparent',
         wireframes: false,
         showAngleIndicator: false
     }
@@ -36,17 +60,19 @@ var render = Render.create({
 /**
  * create plinko machine peg collider grid and buckets
  */
-for (let i = 0; i < 15; ++i) {
+for (let i = 0; i < 10; ++i) {
   let Offset = 25;
   for(let j = 0; j < 52; ++j) {
     if(i % 2 == 0) { //if row is even then apply an offset. This displays a plinko-like layout
       let circle = Bodies.circle((j * 50) + Offset, 250 + i * 50, 8, { //create a circle with the x-pos offset
+          label: 'peg',
           isStatic: true,
           friction: 0
       });
       Composite.add(engine.world, circle); //add the collider onto the scene
     } else {
         let circle = Bodies.circle(j * 50, 250 + i * 50, 8, { //create ball without the offset
+            label: 'peg',
             isStatic: true,
             friction: 0
         });
@@ -58,17 +84,44 @@ for (let i = 0; i < 15; ++i) {
 //Create the plinko buckets
 for(let i = 0; i < 21; ++i) {
   let currentBucket = Bodies.rectangle(i * (matterContainer.clientWidth / 21), matterContainer.clientHeight - 50, 10, 100, { //Make the bucket
+    label: 'bucket',
     isStatic: true,
     friction: 0
   });
   Composite.add(engine.world, currentBucket);
 }
 
+//Create the 'detectors' for volume percentage logic
+var volumePercentageZones = []; //create an array structure for the rectangle detectors
+var currentVolumeChange = -100;
+for(let i = 0; i < 21; ++i) {
+  let volumeUpdateRectangle = { xPos: i * (matterContainer.clientWidth / 21) + 50, yPos: matterContainer.clientHeight, width: 100, height: 10, isStatic: true, volumeChange: currentVolumeChange }; //container with all the parameters needed for each volume updated and its associated volume percentage increase/decrease
+  volumePercentageZones.push(volumeUpdateRectangle); //store the rectangle detector parameters into the structure
+  console.log(currentVolumeChange);
+  if(i % 2 == 0) { //update each even index so that the bucket modifiers are alternating in negative and positives, not in order. This makes the UI MUCH worse lol.
+    currentVolumeChange = -1 * currentVolumeChange;
+    currentVolumeChange -= 10;
+  } else {
+    currentVolumeChange -= 10; //update current volume so each zone has the right modifier amount
+    currentVolumeChange = -1 * currentVolumeChange;
+  }
+}
+
+//add stored zones to composite
+for(let i = 0; i < volumePercentageZones.length; ++i) {
+  let currentZone = Bodies.rectangle(volumePercentageZones[i].xPos, volumePercentageZones[i].yPos, volumePercentageZones[i].width, volumePercentageZones[i].height, { 
+    isStatic: volumePercentageZones[i].isStatic, 
+    label: 'zone',
+    zone: volumePercentageZones[i].volumeChange 
+  });
+  Composite.add(engine.world, currentZone);
+}
+
 /**
  * Player particle spawner position and spawning logic
  */
 var currentPlayerPosition = matterContainer.clientWidth / 2; //Set the inital player position to middle of viewport
-let playerCounter = Bodies.rectangle(currentPlayerPosition, 70, 10, 10, { //Make the player a rectangle
+let playerCounter = Bodies.rectangle(currentPlayerPosition, 70, 12, 12, { //Make the player a rectangle
   isStatic: true
 });
 document.addEventListener('keydown', (e) => { //player movement controls
@@ -85,26 +138,56 @@ document.addEventListener('keydown', (e) => { //player movement controls
     case "ArrowRight":
       currentPlayerPosition += 20;
       break;
-  }
-  Matter.Body.set(playerCounter, "position", { x: currentPlayerPosition, y: 70 }); //update player position
-});
-Composite.add(engine.world, playerCounter); //Add player to the world
+    }
+    Matter.Body.set(playerCounter, "position", { x: currentPlayerPosition, y: 70 }); //update player position
+  });
+  Composite.add(engine.world, playerCounter); //Add player to the world
 
-document.addEventListener('keydown', (e) => {  //Spawns particle when spacebar is pressed.
+  document.addEventListener('keydown', (e) => {  //Spawns particle when spacebar is pressed.
     if (e.key === "Enter") { //Spawn a ball when 'b' is pressed into the world
-        //create circle
-        let circle = Bodies.circle(currentPlayerPosition, 80, 10, {
-            friction: 0.3,
-            frictionAir: 0.00001,
-            restitution: 0.8
-        });
-        Composite.add(engine.world, circle); //add ball to physics world
+      //create circle
+      let circle = Bodies.circle(currentPlayerPosition, 80, 10, {
+        label: 'particle',
+        friction: 0.3,
+        frictionAir: 0,
+        restitution: 0.7
+      });
+      Composite.add(engine.world, circle); //add ball to physics world
     }
     if(e.key === "Escape") {
       Composite.clear(engine.world, true); //clear all of the spawned balls
     }
 });
 
+/**
+ * COLLISION RESOLUTION LOGIC CALLBACK
+ */
+function zoneCollision(event) {
+  var pairs = event.pairs;
+  //volume += 10;
+  for(let i = 0; i < pairs.length; ++i) {
+    //console.log(pairs);
+    var BodyA = pairs[i].bodyA;
+    var BodyB = pairs[i].bodyB;
+    
+    if(BodyA.label == 'particle' && BodyB.label == 'zone') { //if a ball particle instance collides with a bucket collider object (bottom of the bucket)
+      volume += BodyB.zone; //add the corresponding zone value to the volume
+      if(volumeLock == true) { //if the volume is capped
+        volume = volumeBounds(volume); //apply the bounds. This basically ensures volume is { 0 < volume > 100 }.
+      }
+      Composite.remove(engine.world, BodyA); //Remove the colliding ball. This will ensure consistent app framerate as there will be less balls to keep track of
+    } else if(BodyB.label == 'particle' && BodyA.label == 'zone') { //same thing, but in the case that the retrieved pair bodies are switched around.
+      volume += BodyA.zone;
+      if(volumeLock == true) {
+        volume = volumeBounds(volume);
+      }
+      Composite.remove(engine.world, BodyB);
+    }
+    document.getElementById('output').innerHTML = volume; //update current volume output to screen
+  }
+}
+
+Events.on(engine, "collisionStart", zoneCollision); //register the collision resolution callback to the engine.
 
 /**
  * Spawn world boundaries
@@ -114,7 +197,7 @@ var ground = Bodies.rectangle( //ground collision
   matterContainer.clientHeight + THICCNESS / 2,
   27184,
   THICCNESS,
-  { isStatic: true }
+  { isStatic: true, label: 'ground' }
 );
 
 let leftWall = Bodies.rectangle( //Left collision wall (left browser window border)
@@ -123,16 +206,16 @@ let leftWall = Bodies.rectangle( //Left collision wall (left browser window bord
   THICCNESS,
   matterContainer.clientHeight * 5,
   {
-    isStatic: true
+    isStatic: true, label: 'leftborder'
   }
 );
 
-let rightWall = Bodies.rectangle( //Left collision wall (right browser window border)
+let rightWall = Bodies.rectangle( //Right collision wall (right browser window border)
   matterContainer.clientWidth + THICCNESS / 2,
   matterContainer.clientHeight / 2,
   THICCNESS,
   matterContainer.clientHeight * 5,
-  { isStatic: true }
+  { isStatic: true, label: 'rightborder' }
 );
 
 Composite.add(engine.world, [ground, leftWall, rightWall]); // add all of the bodies to the world
@@ -198,6 +281,16 @@ function handleResize(matterContainer) {
   );
 }
 
-window.addEventListener("resize", () => handleResize(matterContainer));
+/**
+ * Volume modifier numbers for interface
+ */
+let volumeModifiers = document.querySelector("#volume-modifiers")
+let volumeModifierPadding = 10 + "px";
+let volumeModifierSpacing = ((matterContainer.clientWidth / 21) / 2) + "px";
+console.log(matterContainer.clientWidth);
+volumeModifiers.style.setProperty('padding-left', volumeModifierPadding);
+volumeModifiers.style.setProperty('word-spacing', volumeModifierSpacing);
 
-document.getElementById('output').innerHTML = volume;
+document.getElementById('output').innerHTML = volume; //update current volume output to screen
+
+window.addEventListener("resize", () => handleResize(matterContainer));
