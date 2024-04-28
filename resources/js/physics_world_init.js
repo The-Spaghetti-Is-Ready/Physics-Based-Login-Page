@@ -97,7 +97,14 @@ var currentVolumeChange = -100;
 for(let i = 0; i < 21; ++i) {
   let volumeUpdateRectangle = { xPos: i * (matterContainer.clientWidth / 21) + 50, yPos: matterContainer.clientHeight, width: 100, height: 10, isStatic: true, volumeChange: currentVolumeChange }; //container with all the parameters needed for each volume updated and its associated volume percentage increase/decrease
   volumePercentageZones.push(volumeUpdateRectangle); //store the rectangle detector parameters into the structure
-  currentVolumeChange += 10; //update current volume so each zone has the right change amount
+  console.log(currentVolumeChange);
+  if(i % 2 == 0) { //update each even index so that the bucket modifiers are alternating in negative and positives, not in order. This makes the UI MUCH worse lol.
+    currentVolumeChange = -1 * currentVolumeChange;
+    currentVolumeChange -= 10;
+  } else {
+    currentVolumeChange -= 10; //update current volume so each zone has the right change amount
+    currentVolumeChange = -1 * currentVolumeChange;
+  }
 }
 
 //add zones to composite
