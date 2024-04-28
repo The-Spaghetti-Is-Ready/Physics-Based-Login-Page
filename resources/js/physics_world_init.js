@@ -9,6 +9,29 @@ const matterContainer = document.querySelector("#matter-container"); //Contain t
 const THICCNESS = 60;
 
 var volume = 50; //initial volume value set to 50
+var volumeLock = true;
+
+function lockVolume() {
+  var checkBox = document.getElementById("volume-lock");
+  if (checkBox.checked == true){
+    volume = volumeBounds(volume);
+    document.getElementById('output').innerHTML = volume; //update current volume output to screen
+
+    volumeLock = true;
+  } else {
+    volumeLock = false;
+  }
+  console.log(volumeLock);
+}
+
+function volumeBounds(currentVolume) {   
+  if(currentVolume > 100) {
+    return 100;
+  } else if(currentVolume < 0) {
+    return 0;
+  }
+  return currentVolume;
+}
 
 // module aliases
 var Engine = Matter.Engine,
@@ -142,12 +165,16 @@ function zoneCollision(event) {
     
     if(BodyA.label == 'particle' && BodyB.label == 'zone') {
       volume += BodyB.zone;
+      if(volumeLock == true) {
+        volume = volumeBounds(volume);
+      }
       Composite.remove(engine.world, BodyA);
-      console.log("bodyB zone is hit.");
     } else if(BodyB.label == 'particle' && BodyA.label == 'zone') {
       volume += BodyA.zone;
+      if(volumeLock == true) {
+        volume = volumeBounds(volume);
+      }
       Composite.remove(engine.world, BodyB);
-      console.log("bodyA zone is hit");
     }
     document.getElementById('output').innerHTML = volume; //update current volume output to screen
   }
