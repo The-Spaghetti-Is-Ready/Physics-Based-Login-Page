@@ -8,7 +8,7 @@
 const matterContainer = document.querySelector("#matter-container"); //Contain the matter world scope/viewport within the matter-container Div.
 const THICCNESS = 60;
 
-let volume = 50; //initial volume value set to 50
+var volume = 50; //initial volume value set to 50
 
 // module aliases
 var Engine = Matter.Engine,
@@ -142,9 +142,11 @@ function zoneCollision(event) {
     
     if(BodyA.label == 'particle' && BodyB.label == 'zone') {
       volume += BodyB.zone;
+      Composite.remove(engine.world, BodyA);
       console.log("bodyB zone is hit.");
     } else if(BodyB.label == 'particle' && BodyA.label == 'zone') {
       volume += BodyA.zone;
+      Composite.remove(engine.world, BodyB);
       console.log("bodyA zone is hit");
     }
     document.getElementById('output').innerHTML = volume; //update current volume output to screen
